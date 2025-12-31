@@ -1,0 +1,27 @@
+# Virtual Environment
+venv/
+/venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# AdalFlow & HuggingFace Caches
+.adalflow/
+.cache/
+cache_datasets/
+
+# Environment variables
+.env
+
+# Outputs & Checkpoints
+outputs/*
+!outputs/.gitkeep
+*.ckpt
+*.json
+
+# IDE specific files
+.idea/
+.vscode/

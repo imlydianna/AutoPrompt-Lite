@@ -8,6 +8,7 @@ This module defines:
 """
 
 import re
+import os
 from typing import Any, Dict, Optional
 
 import adalflow as adal
@@ -77,10 +78,24 @@ class GSM8KStudent(adal.Component):
         """
         super().__init__()
 
+        # Load Initial Prompt from File
+        # We use logic relative to this file's location to ensure it works 
+        # regardless of the execution directory.
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        prompt_path = os.path.join(current_dir, "initial_prompt.txt")
+
+        try:
+            with open(prompt_path, "r", encoding="utf-8") as f:
+                initial_data = f.read().strip()
+        except FileNotFoundError:
+            # Fallback if file is missing (though it shouldn't be)
+            initial_data = "You are a helpful math assistant. Solve the problem step by step. Finish your answer with exactly: 'Answer: X' where X is the number."
+            print(f"⚠️ Warning: {prompt_path} not found. Using fallback prompt.")
+
         # The System Prompt is the trainable parameter.
         # We set requires_opt=True to tell AdalFlow this text should be optimized.
         self.system_prompt = adal.Parameter(
-            data="You are a helpful math assistant. Solve the problem step by step. Finish your answer with exactly: 'Answer: X' where X is the number.",
+            data=initial_data,
             role_desc="Math Instructions",
             requires_opt=True,
             param_type=adal.ParameterType.PROMPT,

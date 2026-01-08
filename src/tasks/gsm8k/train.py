@@ -23,7 +23,7 @@ import os
 import glob
 import adalflow as adal
 from adalflow.datasets.gsm8k import GSM8K
-from adalflow.optim.text_grad.tgd_optimizer import TGDOptimizer
+from src.core.custom_components import CustomTGDOptimizer
 
 # Import Core Infrastructure
 from src.core.client import LocalLLMClient
@@ -114,7 +114,7 @@ def run_training():
     )
 
     print(f"🧠 Setting up Optimizer...")
-    optimizer = TGDOptimizer(
+    optimizer = CustomTGDOptimizer(
         params=student_task.parameters(), 
         model_client=teacher_client,      # The Teacher generates the updates
         model_kwargs=TEACHER_MODEL_KWARGS

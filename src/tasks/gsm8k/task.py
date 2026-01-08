@@ -109,9 +109,9 @@ class GSM8KStudent(adal.Component):
         self.instruction = adal.Parameter(
             data=load_prompt_file("instruction.txt", "You are a helpful math assistant. Solve the problem step by step."),
             role_desc=(
-                "The immutable Persona Definition of the agent. "
-                "This parameter acts as the system header and must strictly define the high-level behavioral "
-                "identity and reasoning strategy (e.g., 'You are an expert mathematician')."
+                "This parameter's SOLE PURPOSE is to define the agent's high-level identity and core mission. "
+                "Focus exclusively on persona (e.g., 'You are a math expert') and the primary strategy "
+                "(e.g., 'Solve problems step-by-step'). All concrete examples belong in the 'demos' parameter."
             ),
             requires_opt=True,
             param_type=adal.ParameterType.PROMPT,
@@ -122,9 +122,8 @@ class GSM8KStudent(adal.Component):
         self.demos = adal.Parameter(
             data=load_prompt_file("demos.txt", ""),
             role_desc=(
-                "A structured buffer for In-Context Learning examples. "
-                "This parameter must strictly contain a list of Question-Answer pairs to demonstrate logic. "
-                "The content serves as reference data for the model."
+                "This parameter's SOLE PURPOSE is to provide complete, high-quality examples of the task. "
+                "Each entry must be a full Question-Reasoning-Answer block. This is the primary place for in-context learning."
             ),
             requires_opt=True,
             param_type=adal.ParameterType.PROMPT,
@@ -135,9 +134,9 @@ class GSM8KStudent(adal.Component):
         self.output_format = adal.Parameter(
             data=load_prompt_file("output_format.txt", "Finish your answer with exactly: 'Answer: X' where X is the number."),
             role_desc=(
-                "The mandatory Syntax Constraint for the final response line. "
-                "This parameter defines the exact string pattern required for the automated parser "
-                "to extract the numerical answer (e.g., 'Answer: 15' or 'Answer: X')."
+                "This parameter's SOLE PURPOSE is to enforce the final output syntax. "
+                "It should contain only strict rules about how the final line of the answer must be formatted, "
+                "for example, requiring the answer to be in the format 'Answer: X'."
             ),
             requires_opt=True,
             param_type=adal.ParameterType.PROMPT,

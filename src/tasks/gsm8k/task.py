@@ -108,7 +108,7 @@ class GSM8KStudent(adal.Component):
         # Peer 1: Core Instruction
         self.instruction = adal.Parameter(
             data=load_prompt_file("instruction.txt", "You are a helpful math assistant. Solve the problem step by step."),
-            role_desc="Task Instruction",
+            role_desc="The high-level task instruction ONLY. Do NOT include examples or formatting rules here.",
             requires_opt=True,
             param_type=adal.ParameterType.PROMPT,
             name="instruction"
@@ -117,7 +117,7 @@ class GSM8KStudent(adal.Component):
         # Peer 2: Few-Shot Demonstrations (The most important for bigger gains)
         self.demos = adal.Parameter(
             data=load_prompt_file("demos.txt", ""),
-            role_desc="Few-shot Examples",
+            role_desc="A text containing ONLY few-shot examples (Question-Answer pairs). Do NOT include instructions, system prompts, or output format guidelines inside this variable.",
             requires_opt=True,
             param_type=adal.ParameterType.PROMPT,
             name="demos"
@@ -126,7 +126,7 @@ class GSM8KStudent(adal.Component):
         # Peer 3: Output Formatting
         self.output_format = adal.Parameter(
             data=load_prompt_file("output_format.txt", "Finish your answer with exactly: 'Answer: X' where X is the number."),
-            role_desc="Output Format formatting requirements",
+            role_desc="Strict syntax rules for the final answer (e.g. 'Answer: X'). Do NOT include reasoning steps or examples here.",
             requires_opt=True,
             param_type=adal.ParameterType.PROMPT,
             name="output_format"

@@ -154,22 +154,44 @@ class LocalLLMClient(ModelClient):
         Returns:
             str: The raw generated text string.
         """
-        # Extract parameters
-        system_prompt = api_kwargs.get("system_prompt", None)
-        user_input = api_kwargs.get("input_str", "")
+        # Extract All Necessary Data
+        full_prompt_str = api_kwargs.get("input_str", "")
         gen_kwargs = api_kwargs.get("model_kwargs", {})
 
+        system_prompt = ""
+        user_prompt = full_prompt_str # Default: assume the whole prompt is a user message
+
+        # Intelligent Prompt Splitting Logic
+        # This logic works for both the Student's and the Teacher's templates.
+        
+        # Define the tags for splitting.
+        sys_start_tag = "<START_OF_SYSTEM_PROMPT>"
+        sys_end_tag = "<END_OF_SYSTEM_PROMPT>"
+        
+        sys_start_idx = full_prompt_str.find(sys_start_tag)
+        sys_end_idx = full_prompt_str.find(sys_end_tag)
+
+        if sys_start_idx != -1 and sys_end_idx != -1:
+            # If the system block is found, split the string into two parts.
+            system_prompt = full_prompt_str[sys_start_idx + len(sys_start_tag):sys_end_idx].strip()
+            user_prompt = full_prompt_str[sys_end_idx + len(sys_end_tag):].strip()
+
+        # Construct the Final `messages` Array
         messages = []
         
-        # Priority 1: Use direct messages list if provided (e.g., from Optimizer logic)
-        if "messages" in api_kwargs:
+        # This block now correctly handles all cases:
+        # - Student: will have system_prompt and user_prompt.
+        # - Teacher: will have system_prompt and user_prompt.
+        # - Simple calls: will have only user_prompt.
+        if "messages" in api_kwargs: # For special optimizer cases
             messages = api_kwargs["messages"]
-        # Priority 2: Construct messages from system/user prompts
         else:
             if system_prompt:
                 messages.append({"role": "system", "content": system_prompt})
-            if user_input:
-                messages.append({"role": "user", "content": user_input})
+            if user_prompt:
+                # As a final cleanup, remove the user tags themselves from the content.
+                user_prompt = user_prompt.replace("<START_OF_USER>", "").replace("<END_OF_USER>", "").strip()
+                messages.append({"role": "user", "content": user_prompt})
 
         if not messages:
             log.warning("No messages provided to LocalLLMClient. Returning empty string.")

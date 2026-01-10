@@ -150,21 +150,23 @@ class GSM8KStudent(adal.Component):
         self.generator = adal.Generator(
             model_client=student_client,
             model_kwargs=model_kwargs,
-            template="""<INSTRUCTION>
+            template="""<START_OF_SYSTEM_PROMPT>
+<INSTRUCTION>
 {{instruction}}
 </INSTRUCTION>
-
-<EXAMPLES>
-{{demos}}
-</EXAMPLES>
-
 <FORMAT>
 {{output_format}}
 </FORMAT>
+<EXAMPLES>
+{{demos}}
+</EXAMPLES>
+<END_OF_SYSTEM_PROMPT>
 
+<START_OF_USER>
 <USER_INPUT>
 {{input_str}}
-</USER_INPUT>""",
+</USER_INPUT>
+<END_OF_USER>""",
             output_processors=parse_gsm8k_answer,
             use_cache=False
         )

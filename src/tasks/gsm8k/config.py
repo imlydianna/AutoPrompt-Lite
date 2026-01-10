@@ -51,8 +51,8 @@ TEST_SIZE = 50    # Number of samples for the final 'evaluate.py' report
 STUDENT_MODEL_NAME = "Qwen/Qwen2.5-1.5B-Instruct"
 
 # Teacher: The "Backward Engine" and "Optimizer".
-# We use a stronger 7B model to provide high-quality feedback and prompt edits.
-TEACHER_MODEL_NAME = "Qwen/Qwen2.5-7B-Instruct"
+# We use a stronger 8B model to provide high-quality feedback and prompt edits.
+TEACHER_MODEL_NAME = "meta-llama/Meta-Llama-3-8B-Instruct"
 
 # -----------------------------------------------------------------------------
 # GENERATION PARAMETERS

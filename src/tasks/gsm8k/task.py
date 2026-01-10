@@ -108,10 +108,14 @@ class GSM8KStudent(adal.Component):
         # Peer 1: Core Instruction
         self.instruction = adal.Parameter(
             data=load_prompt_file("instruction.txt", "You are a helpful math assistant. Solve the problem step by step."),
-            role_desc=(
-                "This parameter defines the agent's high-level persona. Its content MUST be pure instruction. "
-                "It is strictly forbidden to include any Question/Answer examples within this parameter. "
-                "All examples belong in the 'demos' parameter."
+            # General description of the parameter's role.
+            role_desc="Defines the agent's high-level persona and core mission (e.g., 'You are a math expert').",
+            # Specific, high-priority command for the optimizer.
+            instruction_to_optimizer=(
+                "Your goal is to refine the core instruction for the agent. "
+                "Focus on defining a clear persona and a robust, high-level reasoning strategy (like 'think step-by-step'). "
+                "This parameter's content MUST be pure instruction. "
+                "It is strictly forbidden to include any specific Question/Answer examples, as those belong in the 'demos' parameter."
             ),
             requires_opt=True,
             param_type=adal.ParameterType.PROMPT,
@@ -121,12 +125,15 @@ class GSM8KStudent(adal.Component):
         # Peer 2: Few-Shot Demonstrations (The most important for bigger gains)
         self.demos = adal.Parameter(
             data=load_prompt_file("demos.txt", ""),
-            role_desc=(
-                "This parameter's SOLE PURPOSE is to provide a list of Question-Reasoning-Answer examples. "
-                "Its content MUST be only examples. It is strictly forbidden to include any high-level "
-                "instructions or persona definitions here. Quality and precision are far more important than quantity. "
-                "The best improvement is to add or revise a single example that targets a specific reasoning failure from the feedback."
-            ),  
+            # General description of what this parameter is.
+            role_desc="Provides a list of Question-Reasoning-Answer examples for in-context learning.",
+            # The actionable command for the optimizer.
+            instruction_to_optimizer=(
+                "Your goal is to improve the list of few-shot examples. "
+                "The most valuable improvement is to add or revise a single, targeted example that corrects a specific reasoning failure "
+                "identified in the feedback. Quality and precision are far more important than quantity. "
+                "The content MUST be only examples; it is strictly forbidden to include general instructions here."
+            ),
             requires_opt=True,
             param_type=adal.ParameterType.PROMPT,
             name="demos"
@@ -135,10 +142,13 @@ class GSM8KStudent(adal.Component):
         # Peer 3: Output Formatting
         self.output_format = adal.Parameter(
             data=load_prompt_file("output_format.txt", "Finish your answer with exactly: 'Answer: X' where X is the number."),
-            role_desc=(
-                "A non-trainable, fixed constraint that enforces the final output syntax. "
-                "This parameter contains the strict, mandatory rule for how the final line must be formatted "
-                "to be compatible with the answer parser. This rule CANNOT be changed."
+            role_desc="A fixed, non-trainable parameter that defines the mandatory output syntax for the final answer.",
+            # We add this for completeness and clarity, even though it's non-trainable.
+            # It helps the Teacher understand the system's constraints.
+            instruction_to_optimizer=(
+                "This parameter is a fixed, non-trainable rule. You cannot change it. "
+                "You must ensure that any changes you propose to other parameters "
+                "still result in an output that respects this final formatting constraint."
             ),
             requires_opt=False,
             param_type=adal.ParameterType.PROMPT,

@@ -209,8 +209,8 @@ class LocalLLMClient(ModelClient):
             model_inputs = self.tokenizer([text_input], return_tensors="pt").to(self.model.device)
 
             # Set generation parameters (defaults if not provided)
-            max_new_tokens = gen_kwargs.get("max_new_tokens", 512)
-            temperature = gen_kwargs.get("temperature", 0.7)
+            max_new_tokens = gen_kwargs.get("max_new_tokens", 1024)
+            temperature = gen_kwargs.get("temperature", 0.5)
 
             with torch.no_grad():
                 generated_ids = self.model.generate(

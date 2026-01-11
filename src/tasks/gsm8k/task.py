@@ -129,8 +129,9 @@ class GSM8KStudent(adal.Component):
             role_desc="Provides a list of Question-Reasoning-Answer examples for in-context learning.",
             # The actionable command for the optimizer.
             instruction_to_optimizer=(
-                "Your goal is to improve the list of few-shot examples. The most valuable improvement is to "
-                "ADD a completely NEW, well-crafted example that targets a specific reasoning failure identified in the feedback. "
+                "Your goal is to improve the list of few-shot examples. "
+                "The most valuable improvement is to ADD a completely NEW, well-crafted example to the existing list. "
+                "This new example should target a specific reasoning failure identified in the feedback. "
                 "Prioritizing the addition of novel scenarios that cover different types of reasoning is crucial for progress. "
                 "Quality and precision are far more important than quantity. "
                 "The content MUST be only examples; it is strictly forbidden to include general instructions here."

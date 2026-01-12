@@ -1,12 +1,16 @@
 import os
 import logging
+import gc
+import torch
+from dataclasses import dataclass
+from datasets import load_dataset 
+
 from src.core.custom_components import RobustXMLParser
 # Patch the AdalFlow optimizer with our robust XML parser to handle local LLM outputs
 import adalflow.optim.text_grad.tgd_optimizer as tgd_mod
 tgd_mod.CustomizedXMLParser = RobustXMLParser 
 
 import adalflow as adal
-from adalflow.datasets.trec import TrecDataset
 from adalflow.optim.text_grad.tgd_optimizer import TGDOptimizer
 
 from src.core.client import LocalLLMClient
@@ -17,8 +21,40 @@ from src.tasks.trec.pipeline import TRECTrainingPipeline
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logging.getLogger("transformers").setLevel(logging.ERROR)
+logging.getLogger("datasets").setLevel(logging.ERROR)
+
+@dataclass
+class SimpleTrecData:
+    id: str
+    question: str
+    class_name: str
+
+# function to load SetFit/trec
+def load_safe_trec(split, size):
+    print(f"📥 Loading TREC dataset (SetFit/trec) for split: {split}...")
+    ds = load_dataset("SetFit/trec", split=split)
+    
+    data_list = []
+    for idx, item in enumerate(ds):
+        if idx >= size: break # 100 samples
+
+        # The SetFit/trec dataset has a 'label_text' field which is e.g. "HUM", "LOC"
+        data_list.append(SimpleTrecData(
+            id=str(idx),
+            question=item['text'],
+            class_name=item['label_text'] 
+        ))
+    
+    return data_list
+
+
 
 def run_training():
+    print("🧹 Cleaning GPU Memory...")
+    gc.collect()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+
     print("🚀 INITIALIZING TREC EXPERIMENT (LocalLLM)...")
     
     # 1. Initialize Clients
@@ -38,12 +74,8 @@ def run_training():
 
     # 4. Load & Slice Dataset
     print("📚 Loading TREC Dataset...")
-    train_data = TrecDataset(split="train")
-    val_data = TrecDataset(split="val") 
-    
-    # Slice datasets to speed up execution in Colab environment
-    train_data = train_data[:TRAIN_SIZE]
-    val_data = val_data[:VAL_SIZE]
+    train_data = load_safe_trec(split="train", size=TRAIN_SIZE)
+    val_data = load_safe_trec(split="test", size=VAL_SIZE) 
 
     # 5. Setup Trainer
     os.makedirs(OUTPUT_DIR, exist_ok=True)

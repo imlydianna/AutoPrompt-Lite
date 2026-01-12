@@ -179,6 +179,7 @@ def run_training():
     trainer.fit(
         train_dataset=train_data, 
         val_dataset=val_data, 
+        resume_from_ckpt=resume_ckpt,
         debug=False
     )
 
